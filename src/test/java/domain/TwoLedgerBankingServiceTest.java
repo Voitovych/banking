@@ -135,6 +135,21 @@ public class TwoLedgerBankingServiceTest {
     }
 
     @Test
+    void postTransaction_shouldThrowExceptionIfDebtorIsTheSameAsCreditor() {
+        Money initialBalance = Money.of(EUR, new BigDecimal("100"));
+
+        DomainAccountEvent creditorEvent = DomainAccountEvent.credit("1", "1", initialBalance);
+        when(accountEventLog.getEventsByAccountId("1")).thenReturn(Collections.singletonList(creditorEvent));
+
+        Money transactionAmount = Money.of(EUR, new BigDecimal("1000"));
+        TestPostTransaction command = new TestPostTransaction("1", "1", transactionAmount);
+
+        Assertions.assertThrows(PostTransactionException.class, () -> {
+            service.postTransaction(command);
+        });
+    }
+
+    @Test
     void postTransaction_shouldThrowExceptionIfNotEnoughFunds() {
         Money initialBalance = Money.of(EUR, new BigDecimal("100"));
 

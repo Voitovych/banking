@@ -68,9 +68,11 @@ public class TwoLedgerBankingService implements BankingService {
             final PersonalAccount debtor = (PersonalAccount) getAccount(command.getDebitAccountId());
             final PersonalAccount creditor = (PersonalAccount) getAccount(command.getCreditAccountId());
 
+            if (debtor.getId().equals(creditor.getId())) {
+                throw new IllegalArgumentException("Debtor is the same as creditor");
+            }
+
             if (!debtor.canWithdraw(command.getAmount())) {
-                log.info("{} {} {} {}",
-                        debtor.getId(), debtor.getBalance(), creditor.getId(), creditor.getBalance());
                 throw new IllegalArgumentException(format("Debtor %s has no sufficient funds", debtor.getId()));
             }
 
